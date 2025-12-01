@@ -24,6 +24,12 @@
   <label>Weekly Renter Income (optional): <input type="number" id="renterIncome" value="0" /></label>
   <label><input type="checkbox" id="includeRenterIncome" /> Include renter income in gross income</label>
 
+  <label>Mortgage Terms (years):<br>
+    <input type="number" id="term1" value="10" />
+    <input type="number" id="term2" value="20" />
+    <input type="number" id="term3" value="30" />
+  </label>
+
   <button onclick="calculate()">Calculate</button>
 
   <h2>Results</h2>
@@ -120,7 +126,7 @@
       });
 
       document.getElementById('mortgageCharts').innerHTML = '';
-      [10,20,30].forEach((years) => {
+      [parseInt(document.getElementById('term1').value), parseInt(document.getElementById('term2').value), parseInt(document.getElementById('term3').value)].forEach((years) => {
         const periods = years * 12;
         const { payment, interestTotal, principalTotal } = amortisationSplit(mortgageValue, mortgageRate, periods);
 
@@ -136,25 +142,61 @@
         div.innerHTML = `
           <h3>${years}-Year Mortgage</h3>
           <ul>
-            <li><b>Weekly:</b> Payment ${fmt(weekly.toFixed(0))} · Interest ${fmt(weeklyInterest.toFixed(0))}
+            <li><b>Weekly:</b>
               <ul>
-                <li>Salary Contribution: ${fmt((grossIncomeBase/52).toFixed(0))}</li>
-                <li>Renter Contribution: ${fmt(renterIncome)}</li>
+                <li><b>Costs (${fmt(weekly.toFixed(0))})</b>
+                  <ul>
+                    <li>Principal: ${fmt((weekly - weeklyInterest).toFixed(0))}</li>
+                    <li>Interest: ${fmt(weeklyInterest.toFixed(0))}</li>
+                  </ul>
+                </li>
+                <li><b>Income (${fmt(((grossIncomeBase + renterIncome * 52)/52).toFixed(0))})</b>
+                  <ul>
+
+                    <li>Salary: ${fmt((grossIncomeBase/52).toFixed(0))}</li>
+                    <li>Renter: ${fmt(renterIncome)}</li>
+                  </ul>
+                </li>
               </ul>
             </li>
-            <li><b>Monthly:</b> Payment ${fmt(payment.toFixed(0))} · Interest ${fmt(monthlyInterest.toFixed(0))}
+
+            <li><b>Monthly:</b>
               <ul>
-                <li>Salary Contribution: ${fmt((grossIncomeBase/12).toFixed(0))}</li>
-                <li>Renter Contribution: ${fmt((renterIncome*52/12).toFixed(0))}</li>
+                <li><b>Costs (${fmt(payment.toFixed(0))})</b>
+                  <ul>
+                    <li>Principal: ${fmt((payment - monthlyInterest).toFixed(0))}</li>
+                    <li>Interest: ${fmt(monthlyInterest.toFixed(0))}</li>
+                  </ul>
+                </li>
+                <li><b>Income (${fmt(((grossIncomeBase + renterIncome * 52)/12).toFixed(0))})</b>
+                  <ul>
+
+                    <li>Salary: ${fmt((grossIncomeBase/12).toFixed(0))}</li>
+                    <li>Renter: ${fmt((renterIncome*52/12).toFixed(0))}</li>
+                  </ul>
+                </li>
               </ul>
             </li>
-            <li><b>Yearly:</b> Payment ${fmt(yearly.toFixed(0))} · Interest ${fmt(yearlyInterest.toFixed(0))}
+
+            <li><b>Yearly:</b>
               <ul>
-                <li>Salary Contribution: ${fmt(grossIncomeBase.toFixed(0))}</li>
-                <li>Renter Contribution: ${fmt((renterIncome*52).toFixed(0))}</li>
+                <li><b>Costs (${fmt(yearly.toFixed(0))})</b>
+                  <ul>
+                    <li>Principal: ${fmt((yearly - yearlyInterest).toFixed(0))}</li>
+                    <li>Interest: ${fmt(yearlyInterest.toFixed(0))}</li>
+                  </ul>
+                </li>
+                <li><b>Income (${fmt((grossIncomeBase + renterIncome * 52).toFixed(0))})</b>
+                  <ul>
+
+                    <li>Salary: ${fmt(grossIncomeBase.toFixed(0))}</li>
+                    <li>Renter: ${fmt((renterIncome*52).toFixed(0))}</li>
+                  </ul>
+                </li>
               </ul>
             </li>
           </ul>
+
           <p>Total Interest: ${fmt(interestTotal.toFixed(0))}</p>
           <p>Total Paid: ${fmt((principalTotal + interestTotal).toFixed(0))}</p>
           <canvas id="mortgagePie${years}"></canvas>`;
