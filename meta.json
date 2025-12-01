@@ -2,8 +2,8 @@
   "repository": "nz-mortgage-income-calculator",
   "original_filename": "nz_mortgage_income_calculator.html",
   "repo_filename": "index.html",
-  "content_hash": "0d969609c3c8c2dbde2dd4950ebfea334515113d9bc08a4c8de0f2ef0d8e3603",
-  "deployed_at": "2025-12-01T19:06:15.794762",
-  "commit_sha": "69f3ce4a4e9d87771018a4f6f53d7558612f229b",
+  "content_hash": "5107783546fa3ca6958f5d9610949c952be78da2c14060174446034d53f4ccea",
+  "deployed_at": "2025-12-01T19:20:32.271440",
+  "commit_sha": "dad7d96da30dc9a477b4fdb4b60c14a50955cab4",
   "deployer": "github-pages-deployer"
 }
