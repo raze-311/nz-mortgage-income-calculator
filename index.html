@@ -60,6 +60,10 @@
     </select>
   </label>
 
+  <h3>Growth Projections</h3>
+  <label>Average House Increase Per Year (%): <input type="number" id="houseGrowthRate" value="6" step="0.1" /></label>
+  <label>Capital Gains Tax Rate (%): <input type="number" id="capitalGainsTaxRate" value="0" step="0.1" /></label>
+
   <button onclick="calculate()">Calculate</button>
 
   <h2>Results</h2>
@@ -136,6 +140,9 @@
       const maintenanceYearly = toYearly(parseFloat(document.getElementById('maintenanceCost').value) || 0, document.getElementById('maintenancePeriod').value);
       const miscYearly = toYearly(parseFloat(document.getElementById('miscCost').value) || 0, document.getElementById('miscPeriod').value);
       const totalAdditionalCostsYearly = ratesYearly + insuranceYearly + maintenanceYearly + miscYearly;
+
+      const houseGrowthRate = parseFloat(document.getElementById('houseGrowthRate').value) / 100;
+      const capitalGainsTaxRate = parseFloat(document.getElementById('capitalGainsTaxRate').value) / 100;
 
       const grossIncome = includeRenter ? grossIncomeBase + renterIncome * 52 : grossIncomeBase;
       const tax = calculateTax(grossIncome);
@@ -254,6 +261,15 @@
 
           <p>Total Interest: ${fmt(interestTotal.toFixed(0))}</p>
           <p>Total Paid: ${fmt((principalTotal + interestTotal).toFixed(0))}</p>
+
+          <p><b>Projected Value Gain:</b></p>
+          <ul>
+            <li>Projected House Value: ${fmt((mortgageValue * Math.pow(1 + houseGrowthRate, years)).toFixed(0))}</li>
+            <li>Total Net Profit: ${fmt((((mortgageValue * Math.pow(1 + houseGrowthRate, years)) - mortgageValue - interestTotal - (totalAdditionalCostsYearly * years)) * (1 - capitalGainsTaxRate)).toFixed(0))}</li>
+            <li>Net Equity Gain Per Year: ${fmt((((mortgageValue * Math.pow(1 + houseGrowthRate, years)) - mortgageValue - interestTotal - (totalAdditionalCostsYearly * years)) / years).toFixed(0))}</li>
+            <li>Annual Return Rate: ${(((Math.pow((mortgageValue * Math.pow(1 + houseGrowthRate, years)) / mortgageValue, 1/years) - 1) - (interestTotal / mortgageValue / years) - (totalAdditionalCostsYearly / mortgageValue)) * 100).toFixed(2)}%</li>
+          </ul>
+
           <canvas id="mortgagePie${years}"></canvas>`;
         document.getElementById('mortgageCharts').appendChild(div);
 
