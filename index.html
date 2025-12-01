@@ -30,6 +30,36 @@
     <input type="number" id="term3" value="30" />
   </label>
 
+  <h3>Additional Costs</h3>
+  <label>Rates: <input type="number" id="ratesCost" value="4000" />
+    <select id="ratesPeriod">
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="yearly" selected>Yearly</option>
+    </select>
+  </label>
+  <label>Insurance: <input type="number" id="insuranceCost" value="3000" />
+    <select id="insurancePeriod">
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="yearly" selected>Yearly</option>
+    </select>
+  </label>
+  <label>Maintenance: <input type="number" id="maintenanceCost" value="0" />
+    <select id="maintenancePeriod">
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="yearly" selected>Yearly</option>
+    </select>
+  </label>
+  <label>Misc: <input type="number" id="miscCost" value="0" />
+    <select id="miscPeriod">
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="yearly" selected>Yearly</option>
+    </select>
+  </label>
+
   <button onclick="calculate()">Calculate</button>
 
   <h2>Results</h2>
@@ -94,6 +124,19 @@
       const renterIncome = parseFloat(document.getElementById('renterIncome').value) || 0;
       const includeRenter = document.getElementById('includeRenterIncome').checked;
 
+      // Convert additional costs to yearly
+      function toYearly(cost, period) {
+        if (period === 'weekly') return cost * 52;
+        if (period === 'monthly') return cost * 12;
+        return cost;
+      }
+
+      const ratesYearly = toYearly(parseFloat(document.getElementById('ratesCost').value) || 0, document.getElementById('ratesPeriod').value);
+      const insuranceYearly = toYearly(parseFloat(document.getElementById('insuranceCost').value) || 0, document.getElementById('insurancePeriod').value);
+      const maintenanceYearly = toYearly(parseFloat(document.getElementById('maintenanceCost').value) || 0, document.getElementById('maintenancePeriod').value);
+      const miscYearly = toYearly(parseFloat(document.getElementById('miscCost').value) || 0, document.getElementById('miscPeriod').value);
+      const totalAdditionalCostsYearly = ratesYearly + insuranceYearly + maintenanceYearly + miscYearly;
+
       const grossIncome = includeRenter ? grossIncomeBase + renterIncome * 52 : grossIncomeBase;
       const tax = calculateTax(grossIncome);
       const kiwiSaver = grossIncome * kiwiSaverRate;
@@ -137,23 +180,33 @@
         const monthlyInterest = interestTotal / periods;
         const yearlyInterest = interestTotal / years;
 
+        const weeklyAdditionalCosts = totalAdditionalCostsYearly / 52;
+        const monthlyAdditionalCosts = totalAdditionalCostsYearly / 12;
+
+        const totalIncome = takeHome + renterIncome * 52;
+        const totalCostsYearly = yearly + totalAdditionalCostsYearly;
+        const expenditurePercent = (totalCostsYearly / totalIncome * 100).toFixed(1);
+        const expenditureColor = expenditurePercent > 100 ? 'red' : 'black';
+
         const div = document.createElement('div');
         div.className = 'chart-container';
         div.innerHTML = `
           <h3>${years}-Year Mortgage</h3>
+          <p style="color: ${expenditureColor}; font-weight: bold;">Expenditure Percent: ${expenditurePercent}%</p>
           <ul>
             <li><b>Weekly:</b>
               <ul>
-                <li><b>Costs (${fmt(weekly.toFixed(0))})</b>
+                <li><b>Costs (${fmt((weekly + weeklyAdditionalCosts).toFixed(0))})</b>
                   <ul>
                     <li>Principal: ${fmt((weekly - weeklyInterest).toFixed(0))}</li>
                     <li>Interest: ${fmt(weeklyInterest.toFixed(0))}</li>
+                    <li>Additional: ${fmt(weeklyAdditionalCosts.toFixed(0))}</li>
                   </ul>
                 </li>
                 <li><b>Income (${fmt(((grossIncomeBase + renterIncome * 52)/52).toFixed(0))})</b>
                   <ul>
 
-                    <li>Salary: ${fmt((grossIncomeBase/52).toFixed(0))}</li>
+                    <li>Deducted Salary: ${fmt((takeHome/52).toFixed(0))}</li>
                     <li>Renter: ${fmt(renterIncome)}</li>
                   </ul>
                 </li>
@@ -162,16 +215,17 @@
 
             <li><b>Monthly:</b>
               <ul>
-                <li><b>Costs (${fmt(payment.toFixed(0))})</b>
+                <li><b>Costs (${fmt((payment + monthlyAdditionalCosts).toFixed(0))})</b>
                   <ul>
                     <li>Principal: ${fmt((payment - monthlyInterest).toFixed(0))}</li>
                     <li>Interest: ${fmt(monthlyInterest.toFixed(0))}</li>
+                    <li>Additional: ${fmt(monthlyAdditionalCosts.toFixed(0))}</li>
                   </ul>
                 </li>
                 <li><b>Income (${fmt(((grossIncomeBase + renterIncome * 52)/12).toFixed(0))})</b>
                   <ul>
 
-                    <li>Salary: ${fmt((grossIncomeBase/12).toFixed(0))}</li>
+                    <li>Deducted Salary: ${fmt((takeHome/12).toFixed(0))}</li>
                     <li>Renter: ${fmt((renterIncome*52/12).toFixed(0))}</li>
                   </ul>
                 </li>
@@ -180,16 +234,17 @@
 
             <li><b>Yearly:</b>
               <ul>
-                <li><b>Costs (${fmt(yearly.toFixed(0))})</b>
+                <li><b>Costs (${fmt((yearly + totalAdditionalCostsYearly).toFixed(0))})</b>
                   <ul>
                     <li>Principal: ${fmt((yearly - yearlyInterest).toFixed(0))}</li>
                     <li>Interest: ${fmt(yearlyInterest.toFixed(0))}</li>
+                    <li>Additional: ${fmt(totalAdditionalCostsYearly.toFixed(0))}</li>
                   </ul>
                 </li>
                 <li><b>Income (${fmt((grossIncomeBase + renterIncome * 52).toFixed(0))})</b>
                   <ul>
 
-                    <li>Salary: ${fmt(grossIncomeBase.toFixed(0))}</li>
+                    <li>Deducted Salary: ${fmt(takeHome.toFixed(0))}</li>
                     <li>Renter: ${fmt((renterIncome*52).toFixed(0))}</li>
                   </ul>
                 </li>
