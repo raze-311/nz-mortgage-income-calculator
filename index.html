@@ -203,7 +203,7 @@
                     <li>Additional: ${fmt(weeklyAdditionalCosts.toFixed(0))}</li>
                   </ul>
                 </li>
-                <li><b>Income (${fmt(((grossIncomeBase + renterIncome * 52)/52).toFixed(0))})</b>
+                <li><b>Income (${fmt(((takeHome + renterIncome * 52)/52).toFixed(0))})</b>
                   <ul>
 
                     <li>Deducted Salary: ${fmt((takeHome/52).toFixed(0))}</li>
@@ -222,7 +222,7 @@
                     <li>Additional: ${fmt(monthlyAdditionalCosts.toFixed(0))}</li>
                   </ul>
                 </li>
-                <li><b>Income (${fmt(((grossIncomeBase + renterIncome * 52)/12).toFixed(0))})</b>
+                <li><b>Income (${fmt(((takeHome + renterIncome * 52)/12).toFixed(0))})</b>
                   <ul>
 
                     <li>Deducted Salary: ${fmt((takeHome/12).toFixed(0))}</li>
@@ -241,7 +241,7 @@
                     <li>Additional: ${fmt(totalAdditionalCostsYearly.toFixed(0))}</li>
                   </ul>
                 </li>
-                <li><b>Income (${fmt((grossIncomeBase + renterIncome * 52).toFixed(0))})</b>
+                <li><b>Income (${fmt((takeHome + renterIncome * 52).toFixed(0))})</b>
                   <ul>
 
                     <li>Deducted Salary: ${fmt(takeHome.toFixed(0))}</li>
