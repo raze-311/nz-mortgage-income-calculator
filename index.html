@@ -9,7 +9,7 @@
     body { font-family: Arial, sans-serif; margin: 20px; }
     label { display: block; margin-top: 10px; }
     input { margin-top: 5px; }
-    .chart-container { width: 400px; height: 400px; margin: 20px; display: inline-block; vertical-align: top; }
+    .chart-container { width: 400px; min-height: 600px; margin: 20px; display: inline-block; vertical-align: top; }
   </style>
 </head>
 <body>
@@ -19,7 +19,8 @@
   <label>KiwiSaver %: <input type="number" id="kiwiSaver" value="3" /></label>
   <label><input type="checkbox" id="hasStudentLoan" checked /> I have a student loan</label>
   <label id="studentLoanBalanceLabel">Student Loan Outstanding Balance: <input type="number" id="studentLoanBalance" value="33000" /></label>
-  <label>Mortgage Value: <input type="number" id="mortgageValue" value="900000" /></label>
+  <label>Deposit: <input type="number" id="deposit" value="200000" /></label>
+  <label>Mortgage Value: <input type="number" id="mortgageValue" value="1300000" /></label>
   <label>Mortgage Rate (%): <input type="number" id="mortgageRate" value="5" step="0.1" /></label>
   <label>Weekly Renter Income (optional): <input type="number" id="renterIncome" value="0" /></label>
   <label><input type="checkbox" id="includeRenterIncome" /> Include renter income in gross income</label>
@@ -123,7 +124,9 @@
       const kiwiSaverRate = parseFloat(document.getElementById('kiwiSaver').value) / 100;
       const hasStudentLoan = document.getElementById('hasStudentLoan').checked;
       const studentLoanBalance = hasStudentLoan ? parseFloat(document.getElementById('studentLoanBalance').value) : 0;
+      const deposit = parseFloat(document.getElementById('deposit').value);
       const mortgageValue = parseFloat(document.getElementById('mortgageValue').value);
+      const houseValue = deposit + mortgageValue;
       const mortgageRate = parseFloat(document.getElementById('mortgageRate').value) / 100;
       const renterIncome = parseFloat(document.getElementById('renterIncome').value) || 0;
       const includeRenter = document.getElementById('includeRenterIncome').checked;
@@ -264,10 +267,10 @@
 
           <p><b>Projected Value Gain:</b></p>
           <ul>
-            <li>Projected House Value: ${fmt((mortgageValue * Math.pow(1 + houseGrowthRate, years)).toFixed(0))}</li>
-            <li>Total Net Profit: ${fmt((((mortgageValue * Math.pow(1 + houseGrowthRate, years)) - mortgageValue - interestTotal - (totalAdditionalCostsYearly * years)) * (1 - capitalGainsTaxRate)).toFixed(0))}</li>
-            <li>Net Equity Gain Per Year: ${fmt((((mortgageValue * Math.pow(1 + houseGrowthRate, years)) - mortgageValue - interestTotal - (totalAdditionalCostsYearly * years)) / years).toFixed(0))}</li>
-            <li>Annual Return Rate: ${(((Math.pow((mortgageValue * Math.pow(1 + houseGrowthRate, years)) / mortgageValue, 1/years) - 1) - (interestTotal / mortgageValue / years) - (totalAdditionalCostsYearly / mortgageValue)) * 100).toFixed(2)}%</li>
+            <li>Projected House Value: ${fmt((houseValue * Math.pow(1 + houseGrowthRate, years)).toFixed(0))}</li>
+            <li>Total Net Profit: ${fmt((((houseValue * Math.pow(1 + houseGrowthRate, years)) - houseValue - interestTotal - (totalAdditionalCostsYearly * years)) * (1 - capitalGainsTaxRate)).toFixed(0))}</li>
+            <li>Net Equity Gain Per Year: ${fmt((((houseValue * Math.pow(1 + houseGrowthRate, years)) - houseValue - interestTotal - (totalAdditionalCostsYearly * years)) / years).toFixed(0))}</li>
+            <li>Annual Return Rate: ${(((Math.pow((houseValue * Math.pow(1 + houseGrowthRate, years)) / houseValue, 1/years) - 1) - (interestTotal / houseValue / years) - (totalAdditionalCostsYearly / houseValue)) * 100).toFixed(2)}%</li>
           </ul>
 
           <canvas id="mortgagePie${years}"></canvas>`;
