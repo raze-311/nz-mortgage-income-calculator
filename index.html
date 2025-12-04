@@ -6,71 +6,415 @@
   <title>NZ Mortgage + Income Calculator</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    label { display: block; margin-top: 10px; }
-    input { margin-top: 5px; }
-    .chart-container { width: 400px; min-height: 600px; margin: 20px; display: inline-block; vertical-align: top; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e4e4e4;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 40px;
+      color: #64ffda;
+      text-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+    }
+
+    .input-section {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(100, 255, 218, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      color: #64ffda;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    input[type="number"] {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(100, 255, 218, 0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #e4e4e4;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #64ffda;
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 15px rgba(100, 255, 218, 0.2);
+    }
+
+    select {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(100, 255, 218, 0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #e4e4e4;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #64ffda;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+    }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #64ffda;
+    }
+
+    .checkbox-group label {
+      margin: 0;
+      cursor: pointer;
+    }
+
+    h3 {
+      color: #64ffda;
+      margin: 30px 0 20px 0;
+      font-size: 1.4rem;
+      border-bottom: 2px solid rgba(100, 255, 218, 0.3);
+      padding-bottom: 10px;
+    }
+
+    .term-inputs {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .term-inputs input {
+      width: 100px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #64ffda 0%, #48d1cc 100%);
+      color: #1a1a2e;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 40px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: block;
+      margin: 30px auto;
+      box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(100, 255, 218, 0.6);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .results-section {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(100, 255, 218, 0.1);
+    }
+
+    h2 {
+      color: #64ffda;
+      font-size: 2rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    #results p {
+      font-size: 1.1rem;
+      padding: 12px;
+      margin: 8px 0;
+      background: rgba(100, 255, 218, 0.05);
+      border-radius: 8px;
+      border-left: 3px solid #64ffda;
+    }
+
+    .charts-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 30px;
+      justify-content: center;
+    }
+
+    .chart-container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid rgba(100, 255, 218, 0.1);
+      flex: 0 1 auto;
+      max-width: 450px;
+    }
+
+    .mortgage-chart {
+      flex: 0 1 calc(33.333% - 14px);
+      min-width: 350px;
+    }
+
+    .chart-container h3 {
+      text-align: center;
+      margin-top: 0;
+      border: none;
+      padding-bottom: 0;
+    }
+
+    .expenditure-percent {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin: 15px 0;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .chart-container ul {
+      list-style: none;
+      margin: 20px 0;
+    }
+
+    .chart-container li {
+      margin: 5px 0;
+      padding: 5px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .chart-container ul ul {
+      margin-left: 20px;
+      margin-top: 5px;
+    }
+
+    .chart-container b {
+      color: #64ffda;
+    }
+
+    canvas {
+      margin: 20px 0;
+    }
+
+    .cost-input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cost-input-group input {
+      flex: 1;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .charts-container {
+        grid-template-columns: 1fr;
+      }
+
+      .term-inputs input {
+        width: 80px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>NZ Mortgage + Income Calculator</h1>
+  <div class="container">
+    <h1>🏠 NZ Mortgage + Income Calculator</h1>
 
-  <label>Gross Income (before tax): <input type="number" id="grossIncome" value="140000" /></label>
-  <label>KiwiSaver %: <input type="number" id="kiwiSaver" value="3" /></label>
-  <label><input type="checkbox" id="hasStudentLoan" checked /> I have a student loan</label>
-  <label id="studentLoanBalanceLabel">Student Loan Outstanding Balance: <input type="number" id="studentLoanBalance" value="33000" /></label>
-  <label>Deposit: <input type="number" id="deposit" value="200000" /></label>
-  <label>Mortgage Value: <input type="number" id="mortgageValue" value="1300000" /></label>
-  <label>Mortgage Rate (%): <input type="number" id="mortgageRate" value="5" step="0.1" /></label>
-  <label>Weekly Renter Income (optional): <input type="number" id="renterIncome" value="0" /></label>
-  <label><input type="checkbox" id="includeRenterIncome" /> Include renter income in gross income</label>
+    <div class="input-section">
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Gross Income (before tax)</label>
+          <input type="number" id="grossIncome" value="140000" />
+        </div>
 
-  <label>Mortgage Terms (years):<br>
-    <input type="number" id="term1" value="10" />
-    <input type="number" id="term2" value="20" />
-    <input type="number" id="term3" value="30" />
-  </label>
+        <div class="input-group">
+          <label>KiwiSaver %</label>
+          <input type="number" id="kiwiSaver" value="3" />
+        </div>
 
-  <h3>Additional Costs</h3>
-  <label>Rates: <input type="number" id="ratesCost" value="4000" />
-    <select id="ratesPeriod">
-      <option value="weekly">Weekly</option>
-      <option value="monthly">Monthly</option>
-      <option value="yearly" selected>Yearly</option>
-    </select>
-  </label>
-  <label>Insurance: <input type="number" id="insuranceCost" value="3000" />
-    <select id="insurancePeriod">
-      <option value="weekly">Weekly</option>
-      <option value="monthly">Monthly</option>
-      <option value="yearly" selected>Yearly</option>
-    </select>
-  </label>
-  <label>Maintenance: <input type="number" id="maintenanceCost" value="0" />
-    <select id="maintenancePeriod">
-      <option value="weekly">Weekly</option>
-      <option value="monthly">Monthly</option>
-      <option value="yearly" selected>Yearly</option>
-    </select>
-  </label>
-  <label>Misc: <input type="number" id="miscCost" value="0" />
-    <select id="miscPeriod">
-      <option value="weekly">Weekly</option>
-      <option value="monthly">Monthly</option>
-      <option value="yearly" selected>Yearly</option>
-    </select>
-  </label>
+        <div class="input-group">
+          <label>Deposit</label>
+          <input type="number" id="deposit" value="200000" />
+        </div>
 
-  <h3>Growth Projections</h3>
-  <label>Average House Increase Per Year (%): <input type="number" id="houseGrowthRate" value="6" step="0.1" /></label>
-  <label>Capital Gains Tax Rate (%): <input type="number" id="capitalGainsTaxRate" value="0" step="0.1" /></label>
+        <div class="input-group">
+          <label>Mortgage Value</label>
+          <input type="number" id="mortgageValue" value="1300000" />
+        </div>
 
-  <button onclick="calculate()">Calculate</button>
+        <div class="input-group">
+          <label>Mortgage Rate (%)</label>
+          <input type="number" id="mortgageRate" value="5" step="0.1" />
+        </div>
 
-  <h2>Results</h2>
-  <div id="results"></div>
-  <div class="chart-container"><canvas id="incomeBreakdown"></canvas></div>
-  <div id="mortgageCharts"></div>
+        <div class="input-group">
+          <label>Weekly Renter Income (optional)</label>
+          <input type="number" id="renterIncome" value="0" />
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="hasStudentLoan" checked />
+        <label for="hasStudentLoan">I have a student loan</label>
+      </div>
+
+      <div class="input-group" id="studentLoanBalanceLabel">
+        <label>Student Loan Outstanding Balance</label>
+        <input type="number" id="studentLoanBalance" value="33000" />
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="includeRenterIncome" />
+        <label for="includeRenterIncome">Include renter income in gross income</label>
+      </div>
+
+      <h3>Mortgage Terms</h3>
+      <label>Mortgage Terms (years):</label>
+      <div class="term-inputs">
+        <input type="number" id="term1" value="10" />
+        <input type="number" id="term2" value="20" />
+        <input type="number" id="term3" value="30" />
+      </div>
+
+      <h3>Additional Costs</h3>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Rates</label>
+          <div class="cost-input-group">
+            <input type="number" id="ratesCost" value="4000" />
+            <select id="ratesPeriod">
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly" selected>Yearly</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Insurance</label>
+          <div class="cost-input-group">
+            <input type="number" id="insuranceCost" value="3000" />
+            <select id="insurancePeriod">
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly" selected>Yearly</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Maintenance</label>
+          <div class="cost-input-group">
+            <input type="number" id="maintenanceCost" value="0" />
+            <select id="maintenancePeriod">
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly" selected>Yearly</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Miscellaneous</label>
+          <div class="cost-input-group">
+            <input type="number" id="miscCost" value="0" />
+            <select id="miscPeriod">
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly" selected>Yearly</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <h3>Growth Projections</h3>
+      <div class="input-grid">
+        <div class="input-group">
+          <label>Average House Increase Per Year (%)</label>
+          <input type="number" id="houseGrowthRate" value="6" step="0.1" />
+        </div>
+
+        <div class="input-group">
+          <label>Capital Gains Tax Rate (%)</label>
+          <input type="number" id="capitalGainsTaxRate" value="0" step="0.1" />
+        </div>
+      </div>
+
+      <button onclick="calculate()">Calculate</button>
+    </div>
+
+    <div class="results-section">
+      <h2>Results</h2>
+      <div id="results"></div>
+
+      <div class="chart-container" style="max-width: 500px; margin: 30px auto;">
+        <h3>Income Breakdown</h3>
+        <canvas id="incomeBreakdown"></canvas>
+      </div>
+
+      <div class="charts-container" id="mortgageCharts"></div>
+    </div>
+  </div>
 
   <script>
     const accLevyRate = 0.0153;
@@ -131,7 +475,6 @@
       const renterIncome = parseFloat(document.getElementById('renterIncome').value) || 0;
       const includeRenter = document.getElementById('includeRenterIncome').checked;
 
-      // Convert additional costs to yearly
       function toYearly(cost, period) {
         if (period === 'weekly') return cost * 52;
         if (period === 'monthly') return cost * 12;
@@ -175,7 +518,29 @@
 
       window.incomeChart = new Chart(pieCtx, {
         type: 'pie',
-        data: { labels: pieLabels, datasets: [{ data: pieData }] }
+        data: {
+          labels: pieLabels,
+          datasets: [{
+            data: pieData,
+            backgroundColor: [
+              '#ff6b6b',
+              '#4ecdc4',
+              '#45b7d1',
+              '#f9ca24',
+              '#6c5ce7',
+              '#a29bfe'
+            ]
+          }]
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: '#e4e4e4'
+              }
+            }
+          }
+        }
       });
 
       document.getElementById('mortgageCharts').innerHTML = '';
@@ -193,68 +558,82 @@
         const weeklyAdditionalCosts = totalAdditionalCostsYearly / 52;
         const monthlyAdditionalCosts = totalAdditionalCostsYearly / 12;
 
+        // Rent comparison calculations
+        const equivalentWeeklyRent = weeklyInterest + weeklyAdditionalCosts;
+        const equityGainedPerWeek = (payment - interestTotal / periods) * 12 / 52;
+        const totalGain = (houseValue * Math.pow(1 + houseGrowthRate, years)) - houseValue - interestTotal - (totalAdditionalCostsYearly * years);
+        const returnRate = ((Math.pow((houseValue * Math.pow(1 + houseGrowthRate, years)) / houseValue, 1/years) - 1) - (interestTotal / houseValue / years) - (totalAdditionalCostsYearly / houseValue)) * 100;
+
         const totalIncome = takeHome + renterIncome * 52;
         const totalCostsYearly = yearly + totalAdditionalCostsYearly;
         const expenditurePercent = (totalCostsYearly / totalIncome * 100).toFixed(1);
-        const expenditureColor = expenditurePercent > 100 ? 'red' : 'black';
+        const expenditureColor = expenditurePercent > 100 ? '#ff6b6b' : '#64ffda';
 
         const div = document.createElement('div');
-        div.className = 'chart-container';
+        div.className = 'chart-container mortgage-chart';
         div.innerHTML = `
           <h3>${years}-Year Mortgage</h3>
-          <p style="color: ${expenditureColor}; font-weight: bold;">Expenditure Percent: ${expenditurePercent}%</p>
-          <ul>
+          <div class="expenditure-percent" style="color: ${expenditureColor};">
+            Expenditure: ${expenditurePercent}%
+          </div>
+
+          <div style="background: rgba(100, 255, 218, 0.08); border-radius: 10px; padding: 15px; margin: 15px 0; border-left: 3px solid #64ffda;">
+            <p style="margin: 0 0 10px 0; font-size: 0.95rem; line-height: 1.5;">
+              <b>Rent Comparison:</b><br>
+              This mortgage is equivalent to paying <b>${fmt(equivalentWeeklyRent.toFixed(0))}</b> per week in rent (interest + ongoing costs).
+            </p>
+            <p style="margin: 0; font-size: 0.95rem; line-height: 1.5;">
+              The <b>${fmt(equityGainedPerWeek.toFixed(0))}</b> per week of equity gained is expected to have a return of <b>${returnRate.toFixed(2)}%</b> per year, assuming interest rates don't change.
+            </p>
+          </div>
+
+          <ul style="margin: 10px 0;">
             <li><b>Weekly:</b>
               <ul>
-                <li><b>Costs (${fmt((weekly + weeklyAdditionalCosts).toFixed(0))})</b>
+                <li><b>Costs: ${fmt((weekly + weeklyAdditionalCosts).toFixed(0))}</b>
                   <ul>
                     <li>Principal: ${fmt((weekly - weeklyInterest).toFixed(0))}</li>
                     <li>Interest: ${fmt(weeklyInterest.toFixed(0))}</li>
                     <li>Additional: ${fmt(weeklyAdditionalCosts.toFixed(0))}</li>
                   </ul>
                 </li>
-                <li><b>Income (${fmt(((takeHome + renterIncome * 52)/52).toFixed(0))})</b>
+                <li><b>Income: ${fmt(((takeHome + renterIncome * 52)/52).toFixed(0))}</b>
                   <ul>
-
-                    <li>Deducted Salary: ${fmt((takeHome/52).toFixed(0))}</li>
+                    <li>Salary: ${fmt((takeHome/52).toFixed(0))}</li>
                     <li>Renter: ${fmt(renterIncome)}</li>
                   </ul>
                 </li>
               </ul>
             </li>
-
             <li><b>Monthly:</b>
               <ul>
-                <li><b>Costs (${fmt((payment + monthlyAdditionalCosts).toFixed(0))})</b>
+                <li><b>Costs: ${fmt((payment + monthlyAdditionalCosts).toFixed(0))}</b>
                   <ul>
                     <li>Principal: ${fmt((payment - monthlyInterest).toFixed(0))}</li>
                     <li>Interest: ${fmt(monthlyInterest.toFixed(0))}</li>
                     <li>Additional: ${fmt(monthlyAdditionalCosts.toFixed(0))}</li>
                   </ul>
                 </li>
-                <li><b>Income (${fmt(((takeHome + renterIncome * 52)/12).toFixed(0))})</b>
+                <li><b>Income: ${fmt(((takeHome + renterIncome * 52)/12).toFixed(0))}</b>
                   <ul>
-
-                    <li>Deducted Salary: ${fmt((takeHome/12).toFixed(0))}</li>
+                    <li>Salary: ${fmt((takeHome/12).toFixed(0))}</li>
                     <li>Renter: ${fmt((renterIncome*52/12).toFixed(0))}</li>
                   </ul>
                 </li>
               </ul>
             </li>
-
             <li><b>Yearly:</b>
               <ul>
-                <li><b>Costs (${fmt((yearly + totalAdditionalCostsYearly).toFixed(0))})</b>
+                <li><b>Costs: ${fmt((yearly + totalAdditionalCostsYearly).toFixed(0))}</b>
                   <ul>
                     <li>Principal: ${fmt((yearly - yearlyInterest).toFixed(0))}</li>
                     <li>Interest: ${fmt(yearlyInterest.toFixed(0))}</li>
                     <li>Additional: ${fmt(totalAdditionalCostsYearly.toFixed(0))}</li>
                   </ul>
                 </li>
-                <li><b>Income (${fmt((takeHome + renterIncome * 52).toFixed(0))})</b>
+                <li><b>Income: ${fmt((takeHome + renterIncome * 52).toFixed(0))}</b>
                   <ul>
-
-                    <li>Deducted Salary: ${fmt(takeHome.toFixed(0))}</li>
+                    <li>Salary: ${fmt(takeHome.toFixed(0))}</li>
                     <li>Renter: ${fmt((renterIncome*52).toFixed(0))}</li>
                   </ul>
                 </li>
@@ -262,25 +641,37 @@
             </li>
           </ul>
 
-          <p>Total Interest: ${fmt(interestTotal.toFixed(0))}</p>
-          <p>Total Paid: ${fmt((principalTotal + interestTotal).toFixed(0))}</p>
+          <p style="margin: 8px 0;"><b>Total Interest:</b> ${fmt(interestTotal.toFixed(0))}</p>
+          <p style="margin: 8px 0;"><b>Total Paid:</b> ${fmt((principalTotal + interestTotal).toFixed(0))}</p>
 
-          <p><b>Projected Value Gain:</b></p>
-          <ul>
-            <li>Projected House Value: ${fmt((houseValue * Math.pow(1 + houseGrowthRate, years)).toFixed(0))}</li>
-            <li>Total Net Profit: ${fmt((((houseValue * Math.pow(1 + houseGrowthRate, years)) - houseValue - interestTotal - (totalAdditionalCostsYearly * years)) * (1 - capitalGainsTaxRate)).toFixed(0))}</li>
-            <li>Net Equity Gain Per Year: ${fmt((((houseValue * Math.pow(1 + houseGrowthRate, years)) - houseValue - interestTotal - (totalAdditionalCostsYearly * years)) / years).toFixed(0))}</li>
-            <li>Annual Return Rate: ${(((Math.pow((houseValue * Math.pow(1 + houseGrowthRate, years)) / houseValue, 1/years) - 1) - (interestTotal / houseValue / years) - (totalAdditionalCostsYearly / houseValue)) * 100).toFixed(2)}%</li>
+          <p style="margin: 12px 0 8px 0;"><b>Projected Value Gain:</b></p>
+          <ul style="margin: 0;">
+            <li>House Value: ${fmt((houseValue * Math.pow(1 + houseGrowthRate, years)).toFixed(0))}</li>
+            <li>Net Profit: ${fmt((((houseValue * Math.pow(1 + houseGrowthRate, years)) - houseValue - interestTotal - (totalAdditionalCostsYearly * years)) * (1 - capitalGainsTaxRate)).toFixed(0))}</li>
+            <li>Equity/Year: ${fmt((((houseValue * Math.pow(1 + houseGrowthRate, years)) - houseValue - interestTotal - (totalAdditionalCostsYearly * years)) / years).toFixed(0))}</li>
+            <li>Return Rate: ${(((Math.pow((houseValue * Math.pow(1 + houseGrowthRate, years)) / houseValue, 1/years) - 1) - (interestTotal / houseValue / years) - (totalAdditionalCostsYearly / houseValue)) * 100).toFixed(2)}%</li>
           </ul>
 
-          <canvas id="mortgagePie${years}"></canvas>`;
+          <canvas id="mortgagePie${years}" style="margin-top: 15px; max-height: 200px;"></canvas>`;
         document.getElementById('mortgageCharts').appendChild(div);
 
         new Chart(document.getElementById(`mortgagePie${years}`).getContext('2d'), {
           type: 'pie',
           data: {
             labels: ['Interest','Principal'],
-            datasets: [{ data: [interestTotal, principalTotal] }]
+            datasets: [{
+              data: [interestTotal, principalTotal],
+              backgroundColor: ['#ff6b6b', '#64ffda']
+            }]
+          },
+          options: {
+            plugins: {
+              legend: {
+                labels: {
+                  color: '#e4e4e4'
+                }
+              }
+            }
           }
         });
       });
